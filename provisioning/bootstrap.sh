@@ -1,5 +1,6 @@
 #!/bin/bash
 yum update -y 
+yum install -y
 # Update hosts file
 echo "[TASK 1] Update /etc/hosts file"
 cat >>/etc/hosts<<EOF
@@ -13,13 +14,33 @@ echo "[TASK 2] Install docker container engine"
 yum install -y -q yum-utils device-mapper-persistent-data lvm2 > /dev/null 2>&1
 yum-config-manager --add-repo https://download.docker.com/linux/centos/docker-ce.repo > /dev/null 2>&1
 yum install -y yum-utils >/dev/null 2>&1
-yum install -y containerd.io >/dev/null 2>&1
-yum install -y -q --nobest docker-ce docker-ce-cli >/dev/null 2>&1
+yum install -y containerd.io-1.2.13 >/dev/null 2>&1
+yum install -y -q --nobest docker-ce-19.03.11 docker-ce-cli-19.03.11 >/dev/null 2>&1
+mkdir /etc/docker
+cat > /etc/docker/daemon.json <<EOF
+{
+  "exec-opts": ["native.cgroupdriver=systemd"],
+  "log-driver": "json-file",
+  "log-opts": {
+    "max-size": "100m"
+  },
+  "storage-driver": "overlay2",
+  "storage-opts": [
+    "overlay2.override_kernel_check=true"
+  ]
+}
+EOF
+mkdir -p /etc/systemd/system/docker.service.d
+# Restart Docker
+echo "[TASK 3] Enable and start docker service"
+systemctl daemon-reload
+systemctl restart docker
+sudo systemctl enable docker
 
 # Enable docker service
-echo "[TASK 3] Enable and start docker service"
-systemctl enable docker >/dev/null 2>&1
-systemctl start docker
+#echo "[TASK 3] Enable and start docker service"
+#systemctl enable docker >/dev/null 2>&1
+#systemctl start docker
 
 # Disable SELinux
 echo "[TASK 4] Disable SELinux"
