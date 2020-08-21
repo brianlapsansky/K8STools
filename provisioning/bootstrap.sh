@@ -15,7 +15,7 @@ yum install -y -q yum-utils device-mapper-persistent-data lvm2 > /dev/null 2>&1
 yum-config-manager --add-repo https://download.docker.com/linux/centos/docker-ce.repo > /dev/null 2>&1
 yum install -y yum-utils >/dev/null 2>&1
 yum install -y containerd.io-1.2.13 >/dev/null 2>&1
-yum install -y -q --nobest docker-ce-19.03.11 docker-ce-cli-19.03.11 >/dev/null 2>&1
+yum install -y -q --nobest docker-ce docker-ce-cli >/dev/null 2>&1
 mkdir /etc/docker
 cat > /etc/docker/daemon.json <<EOF
 {
