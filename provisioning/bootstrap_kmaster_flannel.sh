@@ -13,7 +13,7 @@ chown -R brian:brian /home/brian/.kube
 
 # Deploy flannel network
 echo "[TASK 3] Deploy flannel network"
-su - brian -c "kubectl create -f /home/brian/kube-flannel.yaml"
+su - brian -c "kubectl create -f /home/brian/K8STools/provisioning/kube-flannel.yaml"
 
 # Generate Cluster join command
 echo "[TASK 4] Generate and save cluster join command to /joincluster.sh"
