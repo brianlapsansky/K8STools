@@ -1,6 +1,6 @@
 #!/bin/bash
 yum update -y 
-yum install -y
+
 # Update hosts file
 echo "[TASK 1] Update /etc/hosts file"
 cat >>/etc/hosts<<EOF
