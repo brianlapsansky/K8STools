@@ -14,7 +14,8 @@ yum install -y -q yum-utils device-mapper-persistent-data lvm2 > /dev/null 2>&1
 yum-config-manager --add-repo https://download.docker.com/linux/centos/docker-ce.repo > /dev/null 2>&1
 yum install -y yum-utils >/dev/null 2>&1
 yum install -y containerd.io-1.2.13 >/dev/null 2>&1
-yum install -y -q --nobest docker-ce docker-ce-cli >/dev/null 2>&1
+yum install -y -q --nobest docker-ce >/dev/null 2>&1
+yum install -y -q --nobest docker-ce-cli >/dev/null 2>&1
 mkdir /etc/docker
 cat > /etc/docker/daemon.json <<EOF
 {
@@ -41,10 +42,13 @@ sudo systemctl enable docker
 #systemctl enable docker >/dev/null 2>&1
 #systemctl start docker
 
+
 # Disable SELinux
 echo "[TASK 4] Disable SELinux"
-setenforce 0
-sed -i --follow-symlinks 's/^SELINUX=enforcing/SELINUX=disabled/' /etc/sysconfig/selinux
+#setenforce 0
+#sed -i --follow-symlinks 's/^SELINUX=enforcing/SELINUX=disabled/' /etc/sysconfig/selinux
+sudo setenforce 0
+sudo sed -i 's/^SELINUX=enforcing$/SELINUX=permissive/' /etc/selinux/config
 
 # Stop and disable firewalld
 echo "[TASK 5] Stop and Disable firewalld"
@@ -66,15 +70,15 @@ swapoff -a
 
 # Add yum repo file for Kubernetes
 echo "[TASK 8] Add yum repo file for kubernetes"
-cat >>/etc/yum.repos.d/kubernetes.repo<<EOF
+cat <<EOF | tee /etc/yum.repos.d/kubernetes.repo
 [kubernetes]
 name=Kubernetes
-baseurl=https://packages.cloud.google.com/yum/repos/kubernetes-el7-x86_64
+baseurl=https://packages.cloud.google.com/yum/repos/kubernetes-el7-\$basearch
 enabled=1
 gpgcheck=1
 repo_gpgcheck=1
-gpgkey=https://packages.cloud.google.com/yum/doc/yum-key.gpg
-        https://packages.cloud.google.com/yum/doc/rpm-package-key.gpg
+gpgkey=https://packages.cloud.google.com/yum/doc/yum-key.gpg https://packages.cloud.google.com/yum/doc/rpm-package-key.gpg
+exclude=kubelet kubeadm kubectl
 EOF
 
 # Install Kubernetes
